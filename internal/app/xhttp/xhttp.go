@@ -18,6 +18,7 @@ func New(config conf.Config) *echo.Echo {
 	srv.GET(pingEndpoint(config), pingHandler)
 	srv.POST(mergeEndpoint(config), mergeHandler)
 	srv.GET(metricEndpoint(config), echo.WrapHandler(promhttp.Handler()))
+	srv.GET(chromeStatusEndpoint(config), chromeStatusHandler)
 	if config.DisableGoogleChrome() && config.DisableUnoconv() {
 		return srv
 	}

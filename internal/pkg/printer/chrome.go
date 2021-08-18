@@ -51,6 +51,7 @@ type ChromePrinterOptions struct {
 // ChromeStatus represents the current status of the Google Chrome Printer.
 type ChromeStatus struct {
 	CurrentRendering int64
+	UnderQueue       bool
 }
 
 // DefaultChromePrinterOptions returns the default
@@ -87,6 +88,7 @@ var devtConnections int
 func GetChromeStatus() ChromeStatus {
 	return ChromeStatus{
 		CurrentRendering: int64(devtConnections),
+		UnderQueue:       devtConnections >= maxDevtConnections,
 	}
 }
 

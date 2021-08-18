@@ -44,6 +44,10 @@ func metricEndpoint(config conf.Config) string {
 	return fmt.Sprintf("%s%s", config.RootPath(), "metrics")
 }
 
+func chromeStatusEndpoint(config conf.Config) string {
+	return fmt.Sprintf("%s%s", config.RootPath(), "status/chrome")
+}
+
 func isMultipartFormDataEndpoint(config conf.Config, path string) bool {
 	var multipartFormDataEndpoints []string
 	multipartFormDataEndpoints = append(multipartFormDataEndpoints, mergeEndpoint(config))
@@ -383,5 +387,26 @@ func convertAsync(ctx context.Context, p printer.Printer, filename, fpath string
 			webhookURL,
 		)
 	}()
+	return nil
+}
+
+// chromeStatusHandler returns the status of the Chrome browser
+// if the rendering is under queue the status code is set to StatusServiceUnavailable.
+func chromeStatusHandler(c echo.Context) error {
+	const op string = "xhttp.chromeStatusHandler"
+	ctx := context.MustCastFromEchoContext(c)
+	logger := ctx.XLogger()
+	logger.DebugOp(op, "handling Chrome status request...")
+	chromeStatus := printer.GetChromeStatus()
+	httpStatusCode := http.StatusOK
+
+	if chromeStatus.UnderQueue {
+		httpStatusCode = http.StatusServiceUnavailable
+	}
+
+	if err := c.JSON(httpStatusCode, chromeStatus); err != nil {
+		return err
+	}
+
 	return nil
 }
